@@ -8,10 +8,6 @@ apiVersion: v1
 kind: Pod
 spec:
   serviceAccountName: jenkins
-  securityContext:
-    runAsUser: 1000
-    runAsGroup: 0
-    fsGroup: 0
   containers:
   - name: jnlp
     image: jenkins/inbound-agent:latest
