@@ -18,33 +18,44 @@ pipeline {
       securityContext:
         privileged: false
         allowPrivilegeEscalation: false
+        runAsNonRoot: true
+        capabilities:
+          drop:
+            - ALL
       workingDir: /home/jenkins/agent
       volumeMounts:
       - name: workspace-volume
         mountPath: /home/jenkins/agent
     - name: runner
       image: quay.io/redhat-appstudio/rhtap-task-runner:latest
-      env:                                                                                                        
-      - name: HOME                                                                                                
-        value: /home/jenkins/agent                                                                                
-      - name: _BUILDAH_STARTED_IN_USERNS    # ADD THIS                                                            
-        value: ""                            # ADD THIS                                                           
-      - name: BUILDAH_ISOLATION              # ADD THIS                                                           
-        value: "chroot"                      # ADD THIS                                                           
-      - name: STORAGE_DRIVER                 # ADD THIS                                                            
-        value: "vfs"                         # ADD THIS 
       securityContext:
         privileged: false
         allowPrivilegeEscalation: false
+        runAsNonRoot: true
+        capabilities:
+          drop:
+            - ALL
       workingDir: /home/jenkins/agent
-      volumeMounts:
-      - name: workspace-volume
-        mountPath: /home/jenkins/agent
       env:
       - name: HOME
         value: /home/jenkins/agent
+      - name: _BUILDAH_STARTED_IN_USERNS
+        value: ""
+      - name: BUILDAH_ISOLATION
+        value: "chroot"
+      - name: STORAGE_DRIVER
+        value: "vfs"
+      - name: BUILDAH_FORMAT
+        value: "docker"
+      volumeMounts:
+      - name: workspace-volume
+        mountPath: /home/jenkins/agent
+      - name: buildah-storage
+        mountPath: /var/lib/containers
     volumes:
     - name: workspace-volume
+      emptyDir: {}
+    - name: buildah-storage
       emptyDir: {}
   """
         }
