@@ -24,6 +24,15 @@ pipeline {
         mountPath: /home/jenkins/agent
     - name: runner
       image: quay.io/redhat-appstudio/rhtap-task-runner:latest
+      env:                                                                                                        
+      - name: HOME                                                                                                
+        value: /home/jenkins/agent                                                                                
+      - name: _BUILDAH_STARTED_IN_USERNS    # ADD THIS                                                            
+        value: ""                            # ADD THIS                                                           
+      - name: BUILDAH_ISOLATION              # ADD THIS                                                           
+        value: "chroot"                      # ADD THIS                                                           
+      - name: STORAGE_DRIVER                 # ADD THIS                                                            
+        value: "vfs"                         # ADD THIS 
       securityContext:
         privileged: false
         allowPrivilegeEscalation: false
