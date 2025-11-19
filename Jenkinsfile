@@ -2,67 +2,7 @@
 
 pipeline {
     agent {
-        kubernetes {
-             yaml """
-  apiVersion: v1
-  kind: Pod
-  spec:
-    serviceAccountName: jenkins
-    securityContext:
-      runAsUser: 1000
-      runAsGroup: 0
-      fsGroup: 0
-    containers:
-    - name: jnlp
-      image: jenkins/inbound-agent:latest
-      securityContext:
-        privileged: false
-        allowPrivilegeEscalation: false
-        runAsNonRoot: true
-        capabilities:
-          drop:
-            - ALL
-      workingDir: /home/jenkins/agent
-      volumeMounts:
-      - name: workspace-volume
-        mountPath: /home/jenkins/agent
-    - name: runner
-      image: quay.io/redhat-appstudio/rhtap-task-runner:latest
-      securityContext:
-        privileged: false
-        allowPrivilegeEscalation: true
-        runAsNonRoot: true
-        capabilities:
-          add:
-            - SETUID
-            - SETGID
-          drop:
-            - MKNOD
-            - KILL
-      workingDir: /home/jenkins/agent
-      env:
-      - name: HOME
-        value: /home/jenkins/agent
-      - name: _BUILDAH_STARTED_IN_USERNS
-        value: ""
-      - name: BUILDAH_ISOLATION
-        value: "chroot"
-      - name: STORAGE_DRIVER
-        value: "vfs"
-      - name: BUILDAH_FORMAT
-        value: "docker"
-      volumeMounts:
-      - name: workspace-volume
-        mountPath: /home/jenkins/agent
-      - name: buildah-storage
-        mountPath: /var/lib/containers
-    volumes:
-    - name: workspace-volume
-      emptyDir: {}
-    - name: buildah-storage
-      emptyDir: {}
-  """
-        }
+        label 'tssc-jenkins-agent' 
     }
     environment {
         HOME = "${WORKSPACE}"
