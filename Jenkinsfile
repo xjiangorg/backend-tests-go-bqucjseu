@@ -3,7 +3,7 @@
 pipeline {
     agent {
         kubernetes {
-              yaml """
+             yaml """
   apiVersion: v1
   kind: Pod
   spec:
@@ -30,11 +30,15 @@ pipeline {
       image: quay.io/redhat-appstudio/rhtap-task-runner:latest
       securityContext:
         privileged: false
-        allowPrivilegeEscalation: false
+        allowPrivilegeEscalation: true
         runAsNonRoot: true
         capabilities:
+          add:
+            - SETUID
+            - SETGID
           drop:
-            - ALL
+            - MKNOD
+            - KILL
       workingDir: /home/jenkins/agent
       env:
       - name: HOME
