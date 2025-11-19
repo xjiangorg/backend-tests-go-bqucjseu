@@ -3,37 +3,41 @@
 pipeline {
     agent {
         kubernetes {
-     yaml """
-apiVersion: v1
-kind: Pod
-spec:
-  serviceAccountName: jenkins
-  containers:
-  - name: jnlp
-    image: jenkins/inbound-agent:latest
+              yaml """
+  apiVersion: v1
+  kind: Pod
+  spec:
+    serviceAccountName: jenkins
     securityContext:
-      privileged: false
-      allowPrivilegeEscalation: false
-    workingDir: /home/jenkins/agent
-    volumeMounts:
+      runAsUser: 1000
+      runAsGroup: 0
+      fsGroup: 0
+    containers:
+    - name: jnlp
+      image: jenkins/inbound-agent:latest
+      securityContext:
+        privileged: false
+        allowPrivilegeEscalation: false
+      workingDir: /home/jenkins/agent
+      volumeMounts:
+      - name: workspace-volume
+        mountPath: /home/jenkins/agent
+    - name: runner
+      image: quay.io/redhat-appstudio/rhtap-task-runner:latest
+      securityContext:
+        privileged: false
+        allowPrivilegeEscalation: false
+      workingDir: /home/jenkins/agent
+      volumeMounts:
+      - name: workspace-volume
+        mountPath: /home/jenkins/agent
+      env:
+      - name: HOME
+        value: /home/jenkins/agent
+    volumes:
     - name: workspace-volume
-      mountPath: /home/jenkins/agent
-  - name: runner
-    image: quay.io/redhat-appstudio/rhtap-task-runner:latest
-    securityContext:
-      privileged: false
-      allowPrivilegeEscalation: false
-    workingDir: /home/jenkins/agent
-    volumeMounts:
-    - name: workspace-volume
-      mountPath: /home/jenkins/agent
-    env:
-    - name: HOME
-      value: /home/jenkins/agent
-  volumes:
-  - name: workspace-volume
-    emptyDir: {}
-"""
+      emptyDir: {}
+  """
         }
     }
     environment {
